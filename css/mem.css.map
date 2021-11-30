@@ -1,0 +1,9 @@
+{
+    "version": 3,
+    "mappings": "AAAA,AAAA,KAAK,AAAC,CACF,OAAO,CAAE,KACb,CAAC,AAED,AAAA,KAAK,AAAC,CACF,OAAO,CAAE,IAAI,CAChB",
+    "sources": [
+        "../sass/mem.scss"
+    ],
+    "names": [],
+    "file": "mem.css"
+}
