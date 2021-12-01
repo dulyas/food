@@ -212,32 +212,60 @@ const active = document.querySelector('.modal');
                 statusMessage.style.cssText = 'display:block; margin:0 auto' // добавим ему классов для оформления
                 form.insertAdjacentElement('afterend', statusMessage);// добавляем сообщение в конец формы
 
-                const request = new XMLHttpRequest(); // создаем объект (позже перейдем на более современные варианты)
-                request.open('POST', 'server.php'); // POST, ибо мы отправляем данные на сервер server.php 
-                request.setRequestHeader('Content-type', 'application/json'); // для работы с json 
+
+
+
+                // const request = new XMLHttpRequest(); // создаем объект (позже перейдем на более современные варианты)
+                // request.open('POST', 'server.php'); // POST, ибо мы отправляем данные на сервер server.php 
+
+                // меняем XMLHttp на fetch
+
+
+
+                // request.setRequestHeader('Content-type', 'application/json'); // для работы с json 
+
+
+                
                 const formData = new FormData(form); // создаем переменную с конструктором FormData, в нее отправляем нашу форму
                 const objectjs = {};
                 formData.forEach(function(value, key){
                     objectjs[key] = value;
                 }); // создаемобычный объект а не formData
-                const json = JSON.stringify(objectjs);
+
                 // это минигайд как переделать formData в json
                 
                 
+                fetch('server.php', {
+                    method: "POST",
+                    headers: {
+                        'Content-type' : 'application/json'
+                    },
+                    body: JSON.stringify(objectjs)
+                }).then(data => data.text())
+                .then(data => {
+                console.log(data);
+                showThankModal(message.success); // сообщение про успешную отправку
+                statusMessage.remove();
+                }).catch(() => {
+                showThankModal(message.failure);
+                }).finally(() => form.reset());// очистим форму )
+
+
+
                 // в инпутах всегда должен быть аттрибут name для отправки на сервер
-                request.send(json); // отправка 
-                request.addEventListener('load', () => { //обработчкик события при загрузке
-                    if (request.status === 200) { // проверяем успешно или нет
-                        console.log(request.response); // тест для меня в консоли
-                        showThankModal(message.success); // сообщение про успешную отправку
-                        form.reset(); // очистим форму 
-                            statusMessage.remove();;
-// удаляем сообщение об отправке
-                    } else {
-                        showThankModal(message.failure); // сообщение об ошибке если что-то пошло не так
-                    }
-                })
-            })
+                // request.send(json); // отправка 
+//                 request.addEventListener('load', () => { //обработчкик события при загрузке
+//                     if (request.status === 200) { // проверяем успешно или нет
+//                         console.log(request.response); // тест для меня в консоли
+//                         showThankModal(message.success); // сообщение про успешную отправку
+//                         form.reset(); // очистим форму 
+//                             statusMessage.remove();;
+// // удаляем сообщение об отправке
+//                     } else {
+//                         showThankModal(message.failure); // сообщение об ошибке если что-то пошло не так
+//                     }
+//                 });
+            });
         }
 
     // оформление красивое для сообщения пользователю
@@ -260,5 +288,16 @@ const active = document.querySelector('.modal');
         prevModalDialog.classList.remove('hide');
         closeModal();
     }, 4000) // через 4 секунды мы прячем наше сообщение и возвращаем в модальное окно обычный ввод имя телефон, чтобы пользователь мог снова пользоваться кнокой связи
-    }
+    };
+
+    // тестовый фетч запрос
+    // fetch('https://jsonplaceholder.typicode.com/posts', { // ссылка для отправления
+    //     method: "POST", // настройки для fetch // метод
+    //     body: JSON.stringify({name: 'Alex'}), // то, что отправляется в нужном формате
+    //     headers: { // заголовки
+    //         'Content-type' : 'application/json'
+    //     }
+    // })
+    // .then(response => response.json())
+    // .then(json => console.log(json));
 })
