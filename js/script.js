@@ -194,6 +194,50 @@ modalClose.addEventListener('click', () => {
     ).render()
 
 
-
+    // Forms
+    const forms = document.querySelectorAll('form'); // переносим все формы в переменную
+    const message = { // объект для сообщений ответа для пользователя
+        loading: 'Загрузка',
+        success: 'Спасибо! Скоро с Вами саяжутся',
+        failure: 'Что-то пошло не так'
+     }
+    forms.forEach(item => { // накладываем функцию postData на все формы на странице
+        postData(item);
+    });
+        function postData(form) { // функция будет отвечать за отправку данных на сервер?
+            form.addEventListener('submit', (e) => { // у кнопок тип submit стоит автоматически
+                e.preventDefault(); // убираем обычное поведение страницы при нажатии на кнопку (перезагрузку)
+                const statusMessage = document.createElement('div'); // создадим блок для сообщения пользователю
+                statusMessage.classList.add('status'); // добавим ему классов для оформления
+                statusMessage.textContent = message.loading; // сообщение во время загрузки
+                form.append(statusMessage); // добавляем сообщение в конец формы
+                const request = new XMLHttpRequest(); // создаем объект (позже перейдем на более современные варианты)
+                request.open('POST', 'server.php'); // POST, ибо мы отправляем данные на сервер server.php 
+                request.setRequestHeader('Content-type', 'application/json'); // для работы с json 
+                const formData = new FormData(form); // создаем переменную с конструктором FormData, в нее отправляем нашу форму
+                const objectjs = {};
+                formData.forEach(function(value, key){
+                    objectjs[key] = value;
+                }); // создаемобычный объект а не formData
+                const json = JSON.stringify(objectjs);
+                // это минигайд как переделать formData в json
+                
+                
+                // в инпутах всегда должен быть аттрибут name для отправки на сервер
+                request.send(json); // отправка 
+                request.addEventListener('load', () => { //обработчкик события при загрузке
+                    if (request.status === 200) { // проверяем успешно или нет
+                        console.log(request.response); // тест для меня в консоли
+                        statusMessage.textContent = message.success; // сообщение про успешную отправку
+                        form.reset(); // очистим форму 
+                        setTimeout(() => {
+                            statusMessage.remove();;
+                        }, 2000); // удаляем сообщение об отправке
+                    } else {
+                        statusMessage.textContent = message.failure; // сообщение об ошибке если что-то пошло не так
+                    }
+                })
+            })
+        }
 
 })
