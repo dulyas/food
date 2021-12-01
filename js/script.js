@@ -85,11 +85,11 @@ function setClock(selector, endtime) {
 
 const modal = document.querySelectorAll('[data-modal]');
 const active = document.querySelector('.modal'); 
-const modalClose = document.querySelector('[data-close]');
-modalClose.addEventListener('click', () => {  
-    closeModal();
+//const modalClose = document.querySelector('[data-close]');
+//modalClose.addEventListener('click', () => {  
+//    closeModal();
 
-})
+//})
     modal.forEach((item) => {
         item.addEventListener('click', () => {  
             openModal();
@@ -108,7 +108,7 @@ modalClose.addEventListener('click', () => {
         window.removeEventListener('scroll', showModalScroll);
     };
     active.addEventListener('click', (e) => {
-        if (e.target === active) {
+        if (e.target === active || e.target.getAttribute('data-close') == '') { //укоротили код и подстроили его под новый функционал
             closeModal();
         }
     });
@@ -197,7 +197,7 @@ modalClose.addEventListener('click', () => {
     // Forms
     const forms = document.querySelectorAll('form'); // переносим все формы в переменную
     const message = { // объект для сообщений ответа для пользователя
-        loading: 'Загрузка',
+        loading: '/icons/spin.svg', // анимация для загрузки
         success: 'Спасибо! Скоро с Вами саяжутся',
         failure: 'Что-то пошло не так'
      }
@@ -207,10 +207,11 @@ modalClose.addEventListener('click', () => {
         function postData(form) { // функция будет отвечать за отправку данных на сервер?
             form.addEventListener('submit', (e) => { // у кнопок тип submit стоит автоматически
                 e.preventDefault(); // убираем обычное поведение страницы при нажатии на кнопку (перезагрузку)
-                const statusMessage = document.createElement('div'); // создадим блок для сообщения пользователю
-                statusMessage.classList.add('status'); // добавим ему классов для оформления
-                statusMessage.textContent = message.loading; // сообщение во время загрузки
-                form.append(statusMessage); // добавляем сообщение в конец формы
+                const statusMessage = document.createElement('img'); // создадим блок для сообщения пользователю
+                statusMessage.src = message.loading;
+                statusMessage.style.cssText = 'display:block; margin:0 auto' // добавим ему классов для оформления
+                form.insertAdjacentElement('afterend', statusMessage);// добавляем сообщение в конец формы
+
                 const request = new XMLHttpRequest(); // создаем объект (позже перейдем на более современные варианты)
                 request.open('POST', 'server.php'); // POST, ибо мы отправляем данные на сервер server.php 
                 request.setRequestHeader('Content-type', 'application/json'); // для работы с json 
@@ -228,16 +229,36 @@ modalClose.addEventListener('click', () => {
                 request.addEventListener('load', () => { //обработчкик события при загрузке
                     if (request.status === 200) { // проверяем успешно или нет
                         console.log(request.response); // тест для меня в консоли
-                        statusMessage.textContent = message.success; // сообщение про успешную отправку
+                        showThankModal(message.success); // сообщение про успешную отправку
                         form.reset(); // очистим форму 
-                        setTimeout(() => {
                             statusMessage.remove();;
-                        }, 2000); // удаляем сообщение об отправке
+// удаляем сообщение об отправке
                     } else {
-                        statusMessage.textContent = message.failure; // сообщение об ошибке если что-то пошло не так
+                        showThankModal(message.failure); // сообщение об ошибке если что-то пошло не так
                     }
                 })
             })
         }
 
+    // оформление красивое для сообщения пользователю
+    function showThankModal(message) {
+        const prevModalDialog = document.querySelector('.modal__dialog');
+        prevModalDialog.classList.add('hide');
+        openModal(); // вызываем модальное окно без контента
+        const thanksModal = document.createElement('div');
+        thanksModal.classList.add('modal__dialog');
+        thanksModal.innerHTML = `
+        <div class="modal__content">
+            <div class="modal__close" data-close>&times;</div>
+            <div class="modal__title">${message}</div>
+        </div>`; // меняем контент в модальном окне на наше сообщение
+  
+    document.querySelector('.modal').append(thanksModal); // вызываем
+    setTimeout(() => {
+        thanksModal.remove();
+        prevModalDialog.classList.add('show');
+        prevModalDialog.classList.remove('hide');
+        closeModal();
+    }, 4000) // через 4 секунды мы прячем наше сообщение и возвращаем в модальное окно обычный ввод имя телефон, чтобы пользователь мог снова пользоваться кнокой связи
+    }
 })
