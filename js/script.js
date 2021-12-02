@@ -37,6 +37,44 @@ document.addEventListener('DOMContentLoaded', (e) => {
         // }
     })
 
+
+// SLIDER
+
+const slides = document.querySelectorAll('.offer__slide');
+const next = document.querySelector('.offer__slider-next');
+const prev = document.querySelector('.offer__slider-prev');
+let slideIndex = 1;
+let currentSlide = document.querySelector('#current');
+    function slideShow(n) {
+
+        slides.forEach(item => {
+            item.style.display = 'none';
+        });
+        slides[n-1].style.display = 'block';
+        currentSlide.textContent = `0${slideIndex}`;
+    }
+    slideShow(slideIndex);
+    next.addEventListener('click', () => {
+        if (slideIndex == 4) {
+            slideIndex = 0
+        } else {
+            slideIndex++;
+            slideShow(slideIndex);
+        }
+    });
+    prev.addEventListener('click', () => {
+        if (slideIndex == 1) {
+            slideIndex = 5
+        } else {
+            slideIndex--;
+            slideShow(slideIndex);
+        }
+    });
+
+
+
+
+
 function getTimeRemaining(endtime) {
     const t = Date.parse(endtime) - Date.parse(new Date()),
     days = Math.floor(t / 1000 / 60 / 60 / 24),
@@ -275,40 +313,41 @@ const active = document.querySelector('.modal');
         }
 
     // оформление красивое для сообщения пользователю
-    function showThankModal(message) {
-        const prevModalDialog = document.querySelector('.modal__dialog');
-        prevModalDialog.classList.add('hide');
-        openModal(); // вызываем модальное окно без контента
-        const thanksModal = document.createElement('div');
-        thanksModal.classList.add('modal__dialog');
-        thanksModal.innerHTML = `
-        <div class="modal__content">
-            <div class="modal__close" data-close>&times;</div>
-            <div class="modal__title">${message}</div>
-        </div>`; // меняем контент в модальном окне на наше сообщение
-  
-    document.querySelector('.modal').append(thanksModal); // вызываем
-    setTimeout(() => {
-        thanksModal.remove();
-        prevModalDialog.classList.add('show');
-        prevModalDialog.classList.remove('hide');
-        closeModal();
-    }, 4000) // через 4 секунды мы прячем наше сообщение и возвращаем в модальное окно обычный ввод имя телефон, чтобы пользователь мог снова пользоваться кнокой связи
-    };
-
-    // тестовый фетч запрос
-    // fetch('https://jsonplaceholder.typicode.com/posts', { // ссылка для отправления
-    //     method: "POST", // настройки для fetch // метод
-    //     body: JSON.stringify({name: 'Alex'}), // то, что отправляется в нужном формате
-    //     headers: { // заголовки
-    //         'Content-type' : 'application/json'
-    //     }
-    // })
-    // .then(response => response.json())
-    // .then(json => console.log(json));
-
-    fetch('db.json').then(data => data.json()).then(res=>console.log(res));
+})
 
 
+function showThankModal(message) {
+    const prevModalDialog = document.querySelector('.modal__dialog');
+    prevModalDialog.classList.add('hide');
+    openModal(); // вызываем модальное окно без контента
+    const thanksModal = document.createElement('div');
+    thanksModal.classList.add('modal__dialog');
+    thanksModal.innerHTML = `
+    <div class="modal__content">
+        <div class="modal__close" data-close>&times;</div>
+        <div class="modal__title">${message}</div>
+    </div>`; // меняем контент в модальном окне на наше сообщение
 
-})})
+document.querySelector('.modal').append(thanksModal); // вызываем
+setTimeout(() => {
+    thanksModal.remove();
+    prevModalDialog.classList.add('show');
+    prevModalDialog.classList.remove('hide');
+    closeModal();
+}, 4000) // через 4 секунды мы прячем наше сообщение и возвращаем в модальное окно обычный ввод имя телефон, чтобы пользователь мог снова пользоваться кнокой связи
+};
+
+// тестовый фетч запрос
+// fetch('https://jsonplaceholder.typicode.com/posts', { // ссылка для отправления
+//     method: "POST", // настройки для fetch // метод
+//     body: JSON.stringify({name: 'Alex'}), // то, что отправляется в нужном формате
+//     headers: { // заголовки
+//         'Content-type' : 'application/json'
+//     }
+// })
+// .then(response => response.json())
+// .then(json => console.log(json));
+
+fetch('db.json').then(data => data.json()).then(res=>console.log(res));
+
+})
