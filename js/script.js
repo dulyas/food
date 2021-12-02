@@ -164,34 +164,26 @@ const active = document.querySelector('.modal');
         }
     }
 
-    new FoodCard(
-        "img/tabs/vegy.jpg",
-        "vegy",
-        'Меню "Фитнес"',
-        'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
-        9,
-        '.menu .container',
+    const getResource = async (url) => { // передаем ссылку на сервер и контент
+        const res = await fetch(url);
+        if (!res.ok) {
+           throw new Error(`Could not fetch ${url}, status: ${res.status}`);
+        }
 
-    ).render()
-    
-    new FoodCard(
-        "img/tabs/elite.jpg",
-        "elite",
-        'Меню “Премиум”',
-        'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!',
-        10,
-        '.menu .container',
-    ).render()
-    
-    new FoodCard(
-        "img/tabs/post.jpg",
-        "post",
-        'Меню "Постное"',
-        'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков. ',
-        12,
-        '.menu .container',
+            return await res.json();
+    };
+    // getResource('http://localhost:3000/menu').
+    // then(data => {
+    //     data.forEach(({img, altimg, title, descr, price}) => {
+    //         new FoodCard(img, altimg, title, descr, price, '.menu .container').render();
+    //     });
+    // });
+    axios.get('http://localhost:3000/menu').
+    then(data => {
+        data.data.forEach(({img, altimg, title, descr, price}) => {
+            new FoodCard(img, altimg, title, descr, price, '.menu .container').render();
+        });
 
-    ).render()
 
 
     // Forms
@@ -202,9 +194,24 @@ const active = document.querySelector('.modal');
         failure: 'Что-то пошло не так'
      }
     forms.forEach(item => { // накладываем функцию postData на все формы на странице
-        postData(item);
+        bindPostData(item);
     });
-        function postData(form) { // функция будет отвечать за отправку данных на сервер?
+
+        const postData = async (url, data) => { // передаем ссылку на сервер и контент
+            const res = await fetch(  // async и await нужны для того, чтобы асинхронный код выполнялся корректно, ибо в данном случае в res не будет ничего приходить async ставим перед аргументами а await перед асинхронными местами 
+                url,
+                {
+                    method: "POST",
+                    headers: {
+                        'Content-type' : 'application/json'
+                    },
+                    body: data
+                }
+            );
+                return await res.json();
+        }
+
+        function bindPostData(form) { // функция будет отвечать за отправку данных на сервер?
             form.addEventListener('submit', (e) => { // у кнопок тип submit стоит автоматически
                 e.preventDefault(); // убираем обычное поведение страницы при нажатии на кнопку (перезагрузку)
                 const statusMessage = document.createElement('img'); // создадим блок для сообщения пользователю
@@ -227,21 +234,20 @@ const active = document.querySelector('.modal');
 
                 
                 const formData = new FormData(form); // создаем переменную с конструктором FormData, в нее отправляем нашу форму
-                const objectjs = {};
-                formData.forEach(function(value, key){
-                    objectjs[key] = value;
-                }); // создаемобычный объект а не formData
+                // const objectjs = {};
+                // formData.forEach(function(value, key){
+                //     objectjs[key] = value;
+                // }); // создаемобычный объект а не formData
+
+                const json = JSON.stringify(Object.fromEntries(formData.entries()));
+                //более простой способ перевести данные в json
 
                 // это минигайд как переделать formData в json
                 
                 
-                fetch('server.php', {
-                    method: "POST",
-                    headers: {
-                        'Content-type' : 'application/json'
-                    },
-                    body: JSON.stringify(objectjs)
-                }).then(data => data.text())
+
+                postData('http://localhost:3000/requests', json)
+                // .then(data => data.text()) // модифицируем наш ответ в виде текста init
                 .then(data => {
                 console.log(data);
                 showThankModal(message.success); // сообщение про успешную отправку
@@ -300,4 +306,9 @@ const active = document.querySelector('.modal');
     // })
     // .then(response => response.json())
     // .then(json => console.log(json));
-})
+
+    fetch('db.json').then(data => data.json()).then(res=>console.log(res));
+
+
+
+})})
