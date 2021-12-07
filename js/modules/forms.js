@@ -1,5 +1,8 @@
-function forms() {
-    const forms = document.querySelectorAll('form'); // переносим все формы в переменную
+import {closeModal, openModal} from './modal';
+import {postData} from '../services/services';
+
+function forms(formSelector, modaltimerId) {
+    const forms = document.querySelectorAll(formSelector); // переносим все формы в переменную
     const message = { // объект для сообщений ответа для пользователя
         loading: '/icons/spin.svg', // анимация для загрузки
         success: 'Спасибо! Скоро с Вами саяжутся',
@@ -9,19 +12,7 @@ function forms() {
         bindPostData(item);
     });
 
-        const postData = async (url, data) => { // передаем ссылку на сервер и контент
-            const res = await fetch(  // async и await нужны для того, чтобы асинхронный код выполнялся корректно, ибо в данном случае в res не будет ничего приходить async ставим перед аргументами а await перед асинхронными местами 
-                url,
-                {
-                    method: "POST",
-                    headers: {
-                        'Content-type' : 'application/json'
-                    },
-                    body: data
-                }
-            );
-                return await res.json();
-        }
+
 
         function bindPostData(form) { // функция будет отвечать за отправку данных на сервер?
             form.addEventListener('submit', (e) => { // у кнопок тип submit стоит автоматически
@@ -87,13 +78,12 @@ function forms() {
         }
 
     // оформление красивое для сообщения пользователю
-}
 
 
 function showThankModal(message) {
     const prevModalDialog = document.querySelector('.modal__dialog');
     prevModalDialog.classList.add('hide');
-    openModal(); // вызываем модальное окно без контента
+    openModal('.modal', modaltimerId); // вызываем модальное окно без контента
     const thanksModal = document.createElement('div');
     thanksModal.classList.add('modal__dialog');
     thanksModal.innerHTML = `
@@ -107,7 +97,7 @@ setTimeout(() => {
     thanksModal.remove();
     prevModalDialog.classList.add('show');
     prevModalDialog.classList.remove('hide');
-    closeModal();
+    closeModal('.modal');
 }, 4000) // через 4 секунды мы прячем наше сообщение и возвращаем в модальное окно обычный ввод имя телефон, чтобы пользователь мог снова пользоваться кнокой связи
 };
 
@@ -123,6 +113,7 @@ setTimeout(() => {
 // .then(json => console.log(json));
 
 fetch('db.json').then(data => data.json()).then(res=>console.log(res));
+}
 
 
-module.exports = forms;
+export default forms;

@@ -33,4 +33,4 @@ let currentSlide = document.querySelector('#current');
 
 
 };
-module.exports = slider;
+export default slider;

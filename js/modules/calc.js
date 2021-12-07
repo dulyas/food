@@ -66,4 +66,4 @@ function dinamicInput(selector) {
 
 }
 
-module.exports = calc;
+export default calc;
